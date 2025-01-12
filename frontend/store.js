@@ -14,6 +14,11 @@ export const useMainStore = defineStore('main', {
       speedtest: false,
       advancedtools: false,
     },
+    shell: {
+      ipv4Domain: import.meta.env.VITE_CURL_IPV4_DOMAIN,
+      ipv6Domain: import.meta.env.VITE_CURL_IPV6_DOMAIN,
+      ipv64Domain: import.meta.env.VITE_CURL_IPV64_DOMAIN,
+    },
     loadingStatus: {
       ipcheck: false,
       connectivity: false,
@@ -49,6 +54,9 @@ export const useMainStore = defineStore('main', {
     allHasLoaded: (state) => {
       return Object.values(state.loadingStatus).every(status => status);
     },
+    curlDomainsHadSet: (state) => {
+      return state.shell.ipv4Domain && state.shell.ipv6Domain && state.shell.ipv64Domain;
+    }
   },
 
   actions: {
@@ -120,6 +128,7 @@ export const useMainStore = defineStore('main', {
         popupConnectivityNotifications: true,
         ipCardsToShow: 6,
         ipGeoSource: 0,
+        lang: 'auto',
       };
       const storedPreferences = localStorage.getItem('userPreferences');
       let preferencesToStore;
