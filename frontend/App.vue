@@ -1,5 +1,7 @@
 <template>
   <NavBar ref="navBarRef" />
+  <User ref="userRef" />
+  <Achievements ref="achievementsRef" />
   <Preferences ref="preferencesRef" />
   <Alert />
   <div id="mainpart" class="container mt-5 jn-container">
@@ -16,8 +18,8 @@
   <InfoMask :showMaskButton.value="showMaskButton" :infoMaskLevel.value="infoMaskLevel"
     :toggleInfoMask="toggleInfoMask" />
   <QueryIP ref="queryIPRef" />
-  <Shell ref="shellRef" />
   <HelpModal ref="helpModalRef" />
+  <Additional ref="additionalRef" />
   <Footer ref="footerRef" />
   <PWA />
   <Patch />
@@ -33,12 +35,14 @@ import WebRTC from './components/WebRtcTest.vue';
 import DNSLeaks from './components/DnsLeaksTest.vue';
 import SpeedTest from './components/SpeedTest.vue';
 import AdvancedTools from './components/Advanced.vue';
+import Additional from './components/Additional.vue';
 import Footer from './components/Footer.vue';
+import User from './components/User.vue';
+import Achievements from './components/Achievements.vue';
 
 // Widgets
 import Preferences from './components/widgets/Preferences.vue';
 import QueryIP from './components/widgets/QueryIP.vue';
-import Shell from './components/widgets/Shell.vue';
 import HelpModal from './components/widgets/Help.vue';
 import PWA from './components/widgets/PWA.vue';
 import Alert from './components/widgets/Toast.vue';
@@ -65,12 +69,14 @@ const userPreferences = computed(() => store.userPreferences);
 const shouldRefreshEveryThing = computed(() => store.shouldRefreshEveryThing);
 const Status = computed(() => store.mountingStatus);
 const openedCard = computed(() => store.currentPath.id);
+const isSignedIn = computed(() => store.isSignedIn);
 
 // Template 里的 Ref
 const navBarRef = ref(null);
 const preferencesRef = ref(null);
 const queryIPRef = ref(null);
 const helpModalRef = ref(null);
+const additionalRef = ref(null);
 const footerRef = ref(null);
 const speedTestRef = ref(null);
 const advancedToolsRef = ref(null);
@@ -78,7 +84,6 @@ const IPCheckRef = ref(null);
 const connectivityRef = ref(null);
 const webRTCRef = ref(null);
 const dnsLeaksRef = ref(null);
-const shellRef = ref(null);
 
 
 // Data
@@ -390,6 +395,15 @@ const ShortcutKeys = (isOriginalSite) => {
       description: t('shortcutKeys.MTRTest'),
     },
     {
+      keys: "S",
+      action: () => {
+        scrollToElement("AdvancedTools", 80);
+        advancedToolsRef.value.navigateAndToggleOffcanvas('/securitychecklist');
+        trackEvent('Nav', 'NavClick', 'SecurityChecklist');
+      },
+      description: t('shortcutKeys.SecurityChecklist'),
+    },
+    {
       keys: "r",
       action: () => {
         scrollToElement("AdvancedTools", 80);
@@ -450,7 +464,7 @@ const ShortcutKeys = (isOriginalSite) => {
     {
       keys: "m",
       action: () => {
-        if (configs.value.bingMap) {
+        if (configs.value.map) {
           window.scrollTo({ top: 0, behavior: "smooth" });
           preferencesRef.value.toggleMaps();
         };
@@ -493,10 +507,10 @@ const ShortcutKeys = (isOriginalSite) => {
     {
       keys: "x",
       action: () => {
-        shellRef.value.openModal();
-        trackEvent('ShortCut', 'ShortCut', 'Shell');
+        additionalRef.value.openCurlModal();
+        trackEvent('ShortCut', 'ShortCut', 'Curl');
       },
-      description: t('shortcutKeys.Shell'),
+      description: t('shortcutKeys.Curl'),
     },
     // help
     {
@@ -504,6 +518,9 @@ const ShortcutKeys = (isOriginalSite) => {
       action: () => {
         helpModalRef.value.openModal();
         trackEvent('ShortCut', 'ShortCut', 'Help');
+        if (isSignedIn.value && !store.userAchievements.CleverTrickery.achieved) {
+          store.setTriggerUpdateAchievements('CleverTrickery');
+        }
       },
       description: t('shortcutKeys.Help'),
     },
